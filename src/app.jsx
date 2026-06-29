@@ -3,13 +3,15 @@ import Login from "./pages/login/login";
 import Dashboard from "./pages/dashboard/dashboard";
 import AdminLayout from "./pages/dashboard/adminLayout";
 
+const ProtectedRoute = ({ children }) =>
+  localStorage.getItem("adminToken") ? children : <Navigate to="/" replace />;
+
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<Dashboard />} />
         </Route>
       </Routes>

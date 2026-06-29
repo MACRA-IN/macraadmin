@@ -44,8 +44,8 @@ const AdminLayout = () => {
   return (
     <div className="flex min-h-screen bg-[#F9FAFB]">
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col fixed top-0 left-0 h-full">
+      {/* ── Desktop sidebar (hidden on mobile) ── */}
+      <aside className="hidden md:flex w-64 bg-white border-r border-gray-100 flex-col fixed top-0 left-0 h-full z-30">
 
         {/* Brand */}
         <div className="px-5 pt-6 pb-5 border-b border-gray-100">
@@ -81,7 +81,6 @@ const AdminLayout = () => {
 
         {/* Admin profile + logout */}
         <div className="px-3 pb-4 pt-3 border-t border-gray-100 flex flex-col gap-1">
-          {/* Profile row */}
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
             <div className="h-7 w-7 rounded-full bg-[#2CD377]/15 flex items-center justify-center shrink-0">
               <span className="text-[10px] font-bold text-[#2CD377] tracking-tight">{initials}</span>
@@ -98,7 +97,6 @@ const AdminLayout = () => {
             </div>
           </div>
 
-          {/* Logout */}
           <button
             onClick={handleLogout}
             className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-150 w-full cursor-pointer"
@@ -110,10 +108,69 @@ const AdminLayout = () => {
 
       </aside>
 
-      {/* Main content */}
-      <main className="ml-64 flex-1 min-h-screen">
+      {/* ── Mobile top header (hidden on desktop) ── */}
+      <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-100 flex items-center justify-between px-4 z-30">
+        <img src={MacraLogo} alt="Macra" className="h-6 w-auto" />
+        <div className="h-7 w-7 rounded-full bg-[#2CD377]/15 flex items-center justify-center">
+          <span className="text-[10px] font-bold text-[#2CD377] tracking-tight">{initials}</span>
+        </div>
+      </header>
+
+      {/* ── Main content ── */}
+      <main className="flex-1 md:ml-64 pt-14 pb-16 md:pt-0 md:pb-0">
         <Outlet />
       </main>
+
+      {/* ── Mobile sticky bottom nav (hidden on desktop) ── */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 z-50">
+        <div className="flex items-stretch h-16">
+
+          {/* Dashboard */}
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              `group flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-150 ${
+                isActive ? "text-[#2CD377]" : "text-gray-400"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <div className={`p-1.5 rounded-lg transition-all duration-150 ${isActive ? "bg-[#2CD377]/10" : "group-active:bg-gray-100"}`}>
+                  <HomeIcon className={`h-5 w-5 transition-colors duration-150 ${isActive ? "text-[#2CD377]" : "text-gray-400"}`} />
+                </div>
+                <span className={`text-[10px] font-semibold tracking-tight transition-colors duration-150 ${isActive ? "text-[#2CD377]" : "text-gray-400"}`}>
+                  Dashboard
+                </span>
+              </>
+            )}
+          </NavLink>
+
+          {/* Profile pill (non-navigating, just info) */}
+          <div className="flex-1 flex flex-col items-center justify-center gap-1">
+            <div className="h-7 w-7 rounded-full bg-[#2CD377]/15 flex items-center justify-center">
+              <span className="text-[10px] font-bold text-[#2CD377]">{initials}</span>
+            </div>
+            <span className="text-[10px] font-semibold text-gray-400 tracking-tight truncate max-w-16">
+              {admin?.name?.split(" ")[0] || "Admin"}
+            </span>
+          </div>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="group flex-1 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-150"
+          >
+            <div className="p-1.5 rounded-lg group-active:bg-red-50 transition-all duration-150">
+              <LogoutIcon className="h-5 w-5 text-gray-400 group-hover:text-red-500 group-active:text-red-500 transition-colors duration-150" />
+            </div>
+            <span className="text-[10px] font-semibold text-gray-400 group-hover:text-red-500 group-active:text-red-500 tracking-tight transition-colors duration-150">
+              Logout
+            </span>
+          </button>
+
+        </div>
+      </nav>
 
     </div>
   );
