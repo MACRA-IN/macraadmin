@@ -22,10 +22,58 @@ const HomeIcon = ({ className }) => (
   </svg>
 );
 
+const KitchenIcon = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+  </svg>
+);
+
 const LogoutIcon = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
   </svg>
+);
+
+const SideNavLink = ({ to, icon: Icon, label }) => (
+  <NavLink
+    to={to}
+    className={({ isActive }) =>
+      `group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+        isActive
+          ? "bg-[#2CD377]/10 text-[#2CD377]"
+          : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+      }`
+    }
+  >
+    {({ isActive }) => (
+      <>
+        <Icon className={`h-4 w-4 shrink-0 transition-colors duration-150 ${isActive ? "text-[#2CD377]" : "text-gray-400 group-hover:text-gray-600"}`} />
+        <span className="tracking-tight">{label}</span>
+      </>
+    )}
+  </NavLink>
+);
+
+const BottomNavLink = ({ to, icon: Icon, label }) => (
+  <NavLink
+    to={to}
+    className={({ isActive }) =>
+      `group flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-150 ${
+        isActive ? "text-[#2CD377]" : "text-gray-400"
+      }`
+    }
+  >
+    {({ isActive }) => (
+      <>
+        <div className={`p-1.5 rounded-lg transition-all duration-150 ${isActive ? "bg-[#2CD377]/10" : "group-active:bg-gray-100"}`}>
+          <Icon className={`h-5 w-5 transition-colors duration-150 ${isActive ? "text-[#2CD377]" : "text-gray-400"}`} />
+        </div>
+        <span className={`text-[10px] font-semibold tracking-tight transition-colors duration-150 ${isActive ? "text-[#2CD377]" : "text-gray-400"}`}>
+          {label}
+        </span>
+      </>
+    )}
+  </NavLink>
 );
 
 const AdminLayout = () => {
@@ -44,7 +92,7 @@ const AdminLayout = () => {
   return (
     <div className="flex min-h-screen bg-[#F9FAFB]">
 
-      {/* ── Desktop sidebar (hidden on mobile) ── */}
+      {/* ── Desktop sidebar ── */}
       <aside className="hidden md:flex w-64 bg-white border-r border-gray-100 flex-col fixed top-0 left-0 h-full z-30">
 
         {/* Brand */}
@@ -60,23 +108,8 @@ const AdminLayout = () => {
           <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-300 px-3 mb-2">
             Menu
           </p>
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) =>
-              `group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                isActive
-                  ? "bg-[#2CD377]/10 text-[#2CD377]"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <HomeIcon className={`h-4 w-4 shrink-0 transition-colors duration-150 ${isActive ? "text-[#2CD377]" : "text-gray-400 group-hover:text-gray-600"}`} />
-                <span className="tracking-tight">Dashboard</span>
-              </>
-            )}
-          </NavLink>
+          <SideNavLink to="/dashboard" icon={HomeIcon} label="Dashboard" />
+          <SideNavLink to="/kitchen-orders" icon={KitchenIcon} label="Kitchen Orders" />
         </nav>
 
         {/* Admin profile + logout */}
@@ -108,7 +141,7 @@ const AdminLayout = () => {
 
       </aside>
 
-      {/* ── Mobile top header (hidden on desktop) ── */}
+      {/* ── Mobile top header ── */}
       <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-100 flex items-center justify-between px-4 z-30">
         <img src={MacraLogo} alt="Macra" className="h-6 w-auto" />
         <div className="h-7 w-7 rounded-full bg-[#2CD377]/15 flex items-center justify-center">
@@ -121,42 +154,14 @@ const AdminLayout = () => {
         <Outlet />
       </main>
 
-      {/* ── Mobile sticky bottom nav (hidden on desktop) ── */}
+      {/* ── Mobile sticky bottom nav ── */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 z-50">
         <div className="flex items-stretch h-16">
 
-          {/* Dashboard */}
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) =>
-              `group flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-150 ${
-                isActive ? "text-[#2CD377]" : "text-gray-400"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <div className={`p-1.5 rounded-lg transition-all duration-150 ${isActive ? "bg-[#2CD377]/10" : "group-active:bg-gray-100"}`}>
-                  <HomeIcon className={`h-5 w-5 transition-colors duration-150 ${isActive ? "text-[#2CD377]" : "text-gray-400"}`} />
-                </div>
-                <span className={`text-[10px] font-semibold tracking-tight transition-colors duration-150 ${isActive ? "text-[#2CD377]" : "text-gray-400"}`}>
-                  Dashboard
-                </span>
-              </>
-            )}
-          </NavLink>
+          <BottomNavLink to="/dashboard" icon={HomeIcon} label="Dashboard" />
 
-          {/* Profile pill (non-navigating, just info) */}
-          <div className="flex-1 flex flex-col items-center justify-center gap-1">
-            <div className="h-7 w-7 rounded-full bg-[#2CD377]/15 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-[#2CD377]">{initials}</span>
-            </div>
-            <span className="text-[10px] font-semibold text-gray-400 tracking-tight truncate max-w-16">
-              {admin?.name?.split(" ")[0] || "Admin"}
-            </span>
-          </div>
+          <BottomNavLink to="/kitchen-orders" icon={KitchenIcon} label="Orders" />
 
-          {/* Logout */}
           <button
             onClick={handleLogout}
             className="group flex-1 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-150"
