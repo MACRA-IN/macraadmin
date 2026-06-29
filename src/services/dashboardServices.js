@@ -18,3 +18,11 @@ export const getStats = async () => {
     throw new Error(error.response?.data?.message || "Failed to fetch stats");
   }
 };
+export const triggerCreateOrders = async () => {
+  try {
+    const response = await apiClient.post("/api/orders/create");
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to generate orders");
+  }
+};
