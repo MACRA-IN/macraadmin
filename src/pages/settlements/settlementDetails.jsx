@@ -1,24 +1,32 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import {
-  getSettlementById,
-  markSettlementPaid,
-} from "../../services/settlementServices";
+import { useParams, useNavigate } from "react-router-dom";
+import { getSettlementById, markSettlementPaid } from "../../services/settlementServices";
+
+const statusStyle = (status) => {
+  if (status === "paid") return "bg-green-50 text-green-600";
+  if (status === "partial") return "bg-yellow-50 text-yellow-600";
+  return "bg-red-50 text-red-500";
+};
+
+const SummaryCard = ({ label, value, valueClass = "text-gray-800" }) => (
+  <div className="bg-white border border-gray-100 rounded-2xl px-4 py-4 shadow-sm flex flex-col gap-1">
+    <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</p>
+    <p className={`text-xl font-bold ${valueClass}`}>{value}</p>
+  </div>
+);
 
 const SettlementDetails = () => {
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const [settlement, setSettlement] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [amount, setAmount] = useState("");
 
   const fetchSettlement = async () => {
     try {
       const response = await getSettlementById(id);
-
       if (response.success) {
         setSettlement(response.data.settlement);
         setOrders(response.data.orders);
@@ -30,16 +38,10 @@ const SettlementDetails = () => {
     }
   };
 
-  useEffect(() => {
-    fetchSettlement();
-  }, []);
+  useEffect(() => { fetchSettlement(); }, []);
 
   const handlePayment = async () => {
-    if (!amount || Number(amount) <= 0) {
-      alert("Enter a valid amount.");
-      return;
-    }
-
+    if (!amount || Number(amount) <= 0) { alert("Enter a valid amount."); return; }
     try {
       const response = await markSettlementPaid(settlement.id, Number(amount));
       if (response.success) {
@@ -48,175 +50,129 @@ const SettlementDetails = () => {
         fetchSettlement();
       }
     } catch (error) {
-      console.error(error);
       alert(error.response?.data?.message || "Payment failed.");
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        <p className="text-gray-500">Loading settlement...</p>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center py-20">
+      <div className="animate-spin h-8 w-8 rounded-full border-4 border-[#2CD377] border-t-transparent" />
+    </div>
+  );
 
-  if (!settlement) {
-    return (
-      <div className="p-6">
-        <p className="text-red-500">Settlement not found.</p>
-      </div>
-    );
-  }
+  if (!settlement) return (
+    <div className="bg-red-50 border border-red-100 rounded-2xl px-6 py-4">
+      <p className="text-red-500 text-sm font-medium">Settlement not found.</p>
+    </div>
+  );
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
+
       {/* Header */}
-
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Settlement Details</h1>
-
-          <p className="mt-1 text-sm text-gray-500">
-            {settlement.week_start} to {settlement.week_end}
-          </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/settlements")}
+            className="h-8 w-8 flex items-center justify-center rounded-xl border border-gray-200 hover:bg-gray-50 transition cursor-pointer shrink-0"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-gray-800">Settlement Details</h1>
+            <p className="text-sm text-gray-400 mt-0.5">{settlement.week_start} — {settlement.week_end}</p>
+          </div>
         </div>
-
-        <span
-          className={`inline-flex rounded-full px-4 py-2 text-sm font-semibold ${
-            settlement.status === "paid"
-              ? "bg-green-100 text-green-700"
-              : settlement.status === "partial"
-                ? "bg-yellow-100 text-yellow-700"
-                : "bg-red-100 text-red-700"
-          }`}
-        >
-          {settlement.status}
-        </span>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <span className={`text-xs font-semibold px-3 py-1.5 rounded-full capitalize ${statusStyle(settlement.status)}`}>
+            {settlement.status}
+          </span>
+          {settlement.status !== "paid" && (
+            <button
+              onClick={() => setShowPaymentModal(true)}
+              className="flex items-center gap-2 bg-[#2CD377] hover:bg-[#25bc6a] active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-sm transition-all duration-150 shadow-lg shadow-[#2CD377]/30 cursor-pointer"
+            >
+              Mark as Paid
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Summary */}
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Customer Collection</p>
-
-          <h2 className="mt-2 text-2xl font-bold">
-            ₹{settlement.customer_collection}
-          </h2>
-        </div>
-
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Kitchen Payable</p>
-
-          <h2 className="mt-2 text-2xl font-bold">
-            ₹{settlement.kitchen_payable}
-          </h2>
-        </div>
-
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Macra Profit</p>
-
-          <h2 className="mt-2 text-2xl font-bold text-[#2CD377]">
-            ₹{settlement.macra_profit}
-          </h2>
-        </div>
-
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Paid Amount</p>
-
-          <h2 className="mt-2 text-2xl font-bold">₹{settlement.paid_amount}</h2>
-        </div>
-
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Balance</p>
-
-          <h2 className="mt-2 text-2xl font-bold text-red-500">
-            ₹{settlement.balance_amount}
-          </h2>
-        </div>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
+        <SummaryCard label="Customer Collection" value={`₹${settlement.customer_collection}`} />
+        <SummaryCard label="Kitchen Payable" value={`₹${settlement.kitchen_payable}`} />
+        <SummaryCard label="Macra Profit" value={`₹${settlement.macra_profit}`} valueClass="text-[#2CD377]" />
+        <SummaryCard label="Paid Amount" value={`₹${settlement.paid_amount}`} />
+        <SummaryCard label="Balance" value={`₹${settlement.balance_amount}`} valueClass="text-red-500" />
       </div>
 
       {/* Orders */}
-
-      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-        <div className="border-b border-gray-100 px-6 py-4">
-          <h2 className="text-lg font-semibold">Orders ({orders.length})</h2>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Orders</span>
+          <span className="bg-[#2CD377]/10 text-[#2CD377] text-xs font-bold px-2 py-0.5 rounded-full">{orders.length}</span>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase text-gray-500">
-                  Order
-                </th>
+        {/* Mobile cards */}
+        <div className="flex flex-col gap-3 sm:hidden">
+          {orders.map((order) => (
+            <div key={order.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-4 flex flex-col gap-2 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#2CD377] text-sm">#{order.id}</span>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${order.status === "delivered" ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-600"}`}>
+                  {order.status}
+                </span>
+              </div>
+              <p className="text-sm font-semibold text-gray-800">{order.product_name}</p>
+              <p className="text-xs text-gray-400 capitalize">{order.delivery_slot} slot</p>
+              <div className="grid grid-cols-3 gap-2 mt-1">
+                <div className="bg-gray-50 rounded-xl px-2 py-2 text-center">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wide">Cust. Paid</p>
+                  <p className="text-xs font-bold text-gray-800 mt-0.5">₹{order.order_total}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl px-2 py-2 text-center">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wide">Commission</p>
+                  <p className="text-xs font-bold text-gray-800 mt-0.5">{order.commission_percentage}%</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl px-2 py-2 text-center">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wide">Payable</p>
+                  <p className="text-xs font-bold text-[#2CD377] mt-0.5">₹{order.kitchen_payable}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase text-gray-500">
-                  Product
-                </th>
-
-                <th className="px-6 py-4 text-center text-xs font-semibold uppercase text-gray-500">
-                  Slot
-                </th>
-
-                <th className="px-6 py-4 text-right text-xs font-semibold uppercase text-gray-500">
-                  Customer Paid
-                </th>
-
-                <th className="px-6 py-4 text-right text-xs font-semibold uppercase text-gray-500">
-                  Kitchen Price
-                </th>
-
-                <th className="px-6 py-4 text-center text-xs font-semibold uppercase text-gray-500">
-                  Commission
-                </th>
-
-                <th className="px-6 py-4 text-right text-xs font-semibold uppercase text-gray-500">
-                  Kitchen Payable
-                </th>
-
-                <th className="px-6 py-4 text-center text-xs font-semibold uppercase text-gray-500">
-                  Status
-                </th>
+        {/* Desktop table */}
+        <div className="hidden sm:block bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Order</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Product</th>
+                <th className="text-center px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Slot</th>
+                <th className="text-right px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Cust. Paid</th>
+                <th className="text-right px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Kitchen Price</th>
+                <th className="text-center px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Commission</th>
+                <th className="text-right px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Payable</th>
+                <th className="text-center px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
               </tr>
             </thead>
-
-            <tbody className="divide-y divide-gray-100">
-              {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">#{order.id}</td>
-
-                  <td className="px-6 py-4 font-medium">
-                    {order.product_name}
-                  </td>
-
-                  <td className="px-6 py-4 text-center capitalize">
-                    {order.delivery_slot}
-                  </td>
-
-                  <td className="px-6 py-4 text-right">₹{order.order_total}</td>
-
-                  <td className="px-6 py-4 text-right">
-                    ₹{order.kitchen_price}
-                  </td>
-
-                  <td className="px-6 py-4 text-center">
-                    {order.commission_percentage}%
-                  </td>
-
-                  <td className="px-6 py-4 text-right font-semibold">
-                    ₹{order.kitchen_payable}
-                  </td>
-
-                  <td className="px-6 py-4 text-center">
-                    <span
-                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                        order.status === "delivered"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
+            <tbody>
+              {orders.map((order, index) => (
+                <tr key={order.id} className={index !== orders.length - 1 ? "border-b border-gray-50 hover:bg-gray-50/50" : "hover:bg-gray-50/50"}>
+                  <td className="px-5 py-3.5 font-bold text-[#2CD377]">#{order.id}</td>
+                  <td className="px-5 py-3.5 font-medium text-gray-700">{order.product_name}</td>
+                  <td className="px-5 py-3.5 text-center text-gray-500 capitalize">{order.delivery_slot}</td>
+                  <td className="px-5 py-3.5 text-right text-gray-600">₹{order.order_total}</td>
+                  <td className="px-5 py-3.5 text-right text-gray-600">₹{order.kitchen_price}</td>
+                  <td className="px-5 py-3.5 text-center text-gray-600">{order.commission_percentage}%</td>
+                  <td className="px-5 py-3.5 text-right font-semibold text-gray-800">₹{order.kitchen_payable}</td>
+                  <td className="px-5 py-3.5 text-center">
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${order.status === "delivered" ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-600"}`}>
                       {order.status}
                     </span>
                   </td>
@@ -227,32 +183,16 @@ const SettlementDetails = () => {
         </div>
       </div>
 
-      {settlement.status !== "paid" && (
-        <div className="flex justify-end">
-          <button
-            onClick={() => setShowPaymentModal(true)}
-            className="rounded-lg bg-[#2CD377] px-6 py-3 font-semibold text-white transition hover:bg-[#22b864]"
-          >
-            Mark as Paid
-          </button>
-        </div>
-      )}
+      {/* Payment Modal */}
       {showPaymentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="text-xl font-semibold">Record Payment</h2>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-2xl">
+            <h2 className="text-lg font-bold text-gray-800">Record Payment</h2>
+            <p className="text-sm text-gray-400 mt-0.5">Remaining balance</p>
+            <p className="text-3xl font-bold text-[#2CD377] mt-1">₹{settlement.balance_amount}</p>
 
-            <p className="mt-2 text-sm text-gray-500">Remaining Balance</p>
-
-            <h3 className="mt-1 text-3xl font-bold text-[#2CD377]">
-              ₹{settlement.balance_amount}
-            </h3>
-
-            <div className="mt-6">
-              <label className="mb-2 block text-sm font-medium">
-                Amount Paid
-              </label>
-
+            <div className="mt-5">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1.5">Amount Paid</label>
               <input
                 type="number"
                 min="1"
@@ -260,24 +200,20 @@ const SettlementDetails = () => {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter payment amount"
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-[#2CD377]"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:border-[#2CD377] focus:ring-2 focus:ring-[#2CD377]/20 transition"
               />
             </div>
 
-            <div className="mt-8 flex justify-end gap-3">
+            <div className="mt-5 flex gap-2">
               <button
-                onClick={() => {
-                  setShowPaymentModal(false);
-                  setAmount("");
-                }}
-                className="rounded-lg border border-gray-300 px-5 py-2 hover:bg-gray-50"
+                onClick={() => { setShowPaymentModal(false); setAmount(""); }}
+                className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition cursor-pointer"
               >
                 Cancel
               </button>
-
               <button
                 onClick={handlePayment}
-                className="rounded-lg bg-[#2CD377] px-5 py-2 font-medium text-white hover:bg-[#22b864]"
+                className="flex-1 bg-[#2CD377] hover:bg-[#25bc6a] text-white rounded-xl py-2.5 text-sm font-bold transition shadow-lg shadow-[#2CD377]/30 cursor-pointer"
               >
                 Save Payment
               </button>
