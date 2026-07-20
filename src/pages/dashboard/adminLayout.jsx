@@ -65,6 +65,23 @@ const KitchenIcon = ({ className }) => (
   </svg>
 );
 
+const MealIcon = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={1.75}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
+
 const LogoutIcon = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -176,7 +193,12 @@ const AdminLayout = () => {
           <SideNavLink
             to="/settlement"
             icon={SettlementIcon}
-            label="settlements"
+            label="Settlements"
+          />
+          <SideNavLink
+            to="/meal-pending"
+            icon={MealIcon}
+            label="Meal Planning"
           />
         </nav>
 
@@ -221,8 +243,10 @@ const AdminLayout = () => {
       </header>
 
       {/* ── Main content ── */}
-      <main className="flex-1 md:ml-64 pt-14 pb-16 md:pt-0 md:pb-0">
-        <Outlet />
+      <main className="flex-1 md:ml-64 pt-14 pb-20 md:pt-0 md:pb-0">
+        <div className="p-4 sm:p-6 md:p-8">
+          <Outlet />
+        </div>
       </main>
 
       {/* ── Mobile sticky bottom nav ── */}
@@ -237,7 +261,12 @@ const AdminLayout = () => {
           <BottomNavLink
             to="/settlement"
             icon={SettlementIcon}
-            label="settlements"
+            label="Settlements"
+          />
+          <BottomNavLink
+            to="/meal-pending"
+            icon={MealIcon}
+            label="Meals"
           />
 
           <button

@@ -5,6 +5,7 @@ import AdminLayout from "./pages/dashboard/adminLayout";
 import KitchenOrdersPage from "./pages/kitchenOrders/kitchenOrders";
 import Settlements from "./pages/settlements/settlements";
 import SettlementDetails from "./pages/settlements/settlementDetails";
+import MealPlanningPending from "./pages/mealPlanner/mealPlanningPending";
 
 const ProtectedRoute = ({ children }) =>
   localStorage.getItem("adminToken") ? children : <Navigate to="/" replace />;
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="kitchen-orders" element={<KitchenOrdersPage />} />
           <Route path="settlement" element={<Settlements />} />
           <Route path="settlements/:id" element={<SettlementDetails />} />
+          <Route path="meal-pending" element={<MealPlanningPending />} />
         </Route>
       </Routes>
     </BrowserRouter>

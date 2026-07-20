@@ -8,7 +8,7 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="p-6 md:p-8 flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
         <p className="text-sm text-gray-400 mt-0.5">{today}</p>
