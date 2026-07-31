@@ -26,3 +26,13 @@ export const triggerCreateOrders = async () => {
     throw new Error(error.response?.data?.message || "Failed to generate orders");
   }
 };
+export const getCustomers = async () => {
+  try {
+    const response = await apiClient.get("/api/admin/customers");
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to fetch customers",
+    );
+  }
+};

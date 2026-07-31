@@ -195,11 +195,7 @@ const AdminLayout = () => {
             icon={SettlementIcon}
             label="Settlements"
           />
-          <SideNavLink
-            to="/meal-pending"
-            icon={MealIcon}
-            label="Meal Planning"
-          />
+          <SideNavLink to="/meal-pending" icon={MealIcon} label="Meal Planning" />
         </nav>
 
         {/* Admin profile + logout */}

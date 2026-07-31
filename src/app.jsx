@@ -5,6 +5,7 @@ import AdminLayout from "./pages/dashboard/adminLayout";
 import KitchenOrdersPage from "./pages/kitchenOrders/kitchenOrders";
 import Settlements from "./pages/settlements/settlements";
 import SettlementDetails from "./pages/settlements/settlementDetails";
+import Customers from "./pages/customers/customers";
 import MealPlanningPending from "./pages/mealPlanner/mealPlanningPending";
 
 const ProtectedRoute = ({ children }) =>
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="settlement" element={<Settlements />} />
           <Route path="settlements/:id" element={<SettlementDetails />} />
           <Route path="meal-pending" element={<MealPlanningPending />} />
+          <Route path="customers" element={<Customers />} />
         </Route>
       </Routes>
     </BrowserRouter>
