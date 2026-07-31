@@ -7,6 +7,7 @@ import Settlements from "./pages/settlements/settlements";
 import SettlementDetails from "./pages/settlements/settlementDetails";
 import Customers from "./pages/customers/customers";
 import MealPlanningPending from "./pages/mealPlanner/mealPlanningPending";
+import LocationChecks from "./pages/locationChecks/locationChecks";
 
 const ProtectedRoute = ({ children }) =>
   localStorage.getItem("adminToken") ? children : <Navigate to="/" replace />;
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="settlements/:id" element={<SettlementDetails />} />
           <Route path="meal-pending" element={<MealPlanningPending />} />
           <Route path="customers" element={<Customers />} />
+          <Route path="location-checks" element={<LocationChecks />} />
         </Route>
       </Routes>
     </BrowserRouter>

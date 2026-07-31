@@ -63,6 +63,14 @@ const StatsCards = () => {
       ],
     },
     {
+      title: "Location Checks",
+      cards: [
+        { label: "View Checks", value: "📍", color: "text-indigo-500", bg: "bg-indigo-50", link: "/location-checks",
+          icon: <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />,
+        },
+      ],
+    },
+    {
       title: "Customers",
       cards: [
         { label: "Total", value: stats?.customers.total, color: "text-blue-500", bg: "bg-blue-50", link: "/customers",

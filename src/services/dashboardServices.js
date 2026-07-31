@@ -36,3 +36,11 @@ export const getCustomers = async () => {
     );
   }
 };
+export const getLocationChecks = async () => {
+  try {
+    const response = await apiClient.get("/api/admin/location-checks");
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch location checks");
+  }
+};
