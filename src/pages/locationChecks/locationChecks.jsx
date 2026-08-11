@@ -84,7 +84,7 @@ const LocationChecks = () => {
               </span>
             </div>
             <div className="flex gap-4 text-xs text-gray-500">
-              <span>Distance: <span className="font-medium text-gray-700">{c.distance_km} km</span></span>
+              <span>Road Distance: <span className="font-medium text-gray-700">{c.road_distance_km} km</span></span>
               <span>Radius: <span className="font-medium text-gray-700">{c.delivery_radius_km} km</span></span>
             </div>
             <p className="text-xs text-gray-300">{new Date(c.created_at).toLocaleString()}</p>
