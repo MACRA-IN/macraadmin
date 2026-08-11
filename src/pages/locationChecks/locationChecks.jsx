@@ -100,7 +100,7 @@ const LocationChecks = () => {
               <th className="text-left px-5 py-3">Customer ID</th>
               <th className="text-left px-5 py-3">Area</th>
               <th className="text-left px-5 py-3">City</th>
-              <th className="text-left px-5 py-3">Distance</th>
+              <th className="text-left px-5 py-3">Road Distance</th>
               <th className="text-left px-5 py-3">Radius</th>
               <th className="text-left px-5 py-3">Status</th>
               <th className="text-left px-5 py-3">Checked At</th>
@@ -112,7 +112,7 @@ const LocationChecks = () => {
                 <td className="px-5 py-3 font-medium text-gray-800">#{c.customer_id}</td>
                 <td className="px-5 py-3 text-gray-600">{c.area_name}</td>
                 <td className="px-5 py-3 text-gray-600">{c.city}</td>
-                <td className="px-5 py-3 text-gray-600">{c.distance_km} km</td>
+                <td className="px-5 py-3 text-gray-600">{c.road_distance_km} km</td>
                 <td className="px-5 py-3 text-gray-600">{c.delivery_radius_km} km</td>
                 <td className="px-5 py-3">
                   <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
