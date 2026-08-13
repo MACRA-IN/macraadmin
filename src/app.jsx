@@ -8,6 +8,7 @@ import SettlementDetails from "./pages/settlements/settlementDetails";
 import Customers from "./pages/customers/customers";
 import MealPlanningPending from "./pages/mealPlanner/mealPlanningPending";
 import LocationChecks from "./pages/locationChecks/locationChecks";
+import Waitlist from "./pages/waitlist/waitlist";
 
 const ProtectedRoute = ({ children }) =>
   localStorage.getItem("adminToken") ? children : <Navigate to="/" replace />;
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="meal-pending" element={<MealPlanningPending />} />
           <Route path="customers" element={<Customers />} />
           <Route path="location-checks" element={<LocationChecks />} />
+          <Route path="waitlist" element={<Waitlist />} />
         </Route>
       </Routes>
     </BrowserRouter>
