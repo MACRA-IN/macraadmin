@@ -34,8 +34,6 @@ const extractAreas = (payload) => {
   return [];
 };
 
-const getZoneName = (area) => area.zone_name ?? area.area_name;
-
 const SkeletonCard = () => (
   <div className="rounded-xl p-4 bg-gray-100 animate-pulse h-[124px] flex flex-col items-center justify-center gap-2">
     <div className="h-4 w-4 rounded-full bg-gray-200" />
@@ -57,7 +55,7 @@ const AreaCard = ({ area, onClick }) => {
       }`}
     >
       <MapPinIcon className="h-4 w-4 mb-2" />
-      <p className="text-[14px] font-bold leading-tight line-clamp-2">{getZoneName(area)}</p>
+      <p className="text-[14px] font-bold leading-tight line-clamp-2">{area.area_name}</p>
       <p className="text-[32px] font-bold leading-tight mt-1">{area.count}</p>
       <span className="text-[12px] opacity-80 mt-1">
         {allApproved ? "✅ Access Given" : area.ready ? "Ready" : "Growing"}
@@ -79,7 +77,7 @@ const PeopleModal = ({ area, onClose, onApproved }) => {
     try {
       await approveWaitlistBatch(ids);
       setStatus({ type: "success", message: "✅ Access granted! They can now order." });
-      onApproved(getZoneName(area), ids);
+      onApproved(area.area_name, ids);
     } catch (err) {
       setStatus({ type: "error", message: err.message || "Failed to grant access" });
     } finally {
@@ -98,7 +96,7 @@ const PeopleModal = ({ area, onClose, onApproved }) => {
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div>
-            <p className="text-sm font-bold text-gray-800">{getZoneName(area)}</p>
+            <p className="text-sm font-bold text-gray-800">{area.area_name}</p>
             <p className="text-xs text-gray-400 mt-0.5">{area.count} on waitlist</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 cursor-pointer">
@@ -189,12 +187,12 @@ const Waitlist = () => {
 
   const totalPeople = areas.reduce((sum, a) => sum + (a.count || 0), 0);
   const readyCount = areas.filter((a) => a.ready).length;
-  const selectedArea = areas.find((a) => getZoneName(a) === selectedAreaName) || null;
+  const selectedArea = areas.find((a) => a.area_name === selectedAreaName) || null;
 
   const handleApproved = (areaName, approvedIds) => {
     setAreas((prev) =>
       prev.map((a) =>
-        getZoneName(a) === areaName
+        a.area_name === areaName
           ? {
               ...a,
               people: (a.people || []).map((p) =>
@@ -267,7 +265,7 @@ const Waitlist = () => {
       {!loading && !error && areas.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {areas.map((area) => (
-            <AreaCard key={getZoneName(area)} area={area} onClick={() => setSelectedAreaName(getZoneName(area))} />
+            <AreaCard key={area.area_name} area={area} onClick={() => setSelectedAreaName(area.area_name)} />
           ))}
         </div>
       )}
