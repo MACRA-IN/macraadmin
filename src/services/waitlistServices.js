@@ -10,3 +10,16 @@ export const getWaitlistAreas = async () => {
     );
   }
 };
+
+export const approveWaitlistBatch = async (personIds) => {
+  try {
+    const response = await apiClient.post("/api/waitlist/approve-batch", {
+      ids: personIds,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to grant access",
+    );
+  }
+};

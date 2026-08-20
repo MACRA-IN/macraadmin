@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getWaitlistAreas } from "../../services/waitlistServices";
+import { approveWaitlistBatch, getWaitlistAreas } from "../../services/waitlistServices";
 
 const AUTO_REFRESH_MS = 30000;
 
@@ -34,6 +34,8 @@ const extractAreas = (payload) => {
   return [];
 };
 
+const getZoneName = (area) => area.zone_name ?? area.area_name;
+
 const SkeletonCard = () => (
   <div className="rounded-xl p-4 bg-gray-100 animate-pulse h-[124px] flex flex-col items-center justify-center gap-2">
     <div className="h-4 w-4 rounded-full bg-gray-200" />
@@ -43,68 +45,122 @@ const SkeletonCard = () => (
   </div>
 );
 
-const AreaCard = ({ area, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`rounded-xl p-4 text-center flex flex-col items-center transition-transform duration-150 hover:scale-[1.02] cursor-pointer ${
-      area.ready ? "bg-[#2CD377] text-white" : "bg-[#E7ECE8] text-gray-800"
-    }`}
-  >
-    <MapPinIcon className="h-4 w-4 mb-2" />
-    <p className="text-[14px] font-bold leading-tight line-clamp-2">{area.area_name}</p>
-    <p className="text-[32px] font-bold leading-tight mt-1">{area.count}</p>
-    <span className="text-[12px] opacity-80 mt-1">{area.ready ? "Ready" : "Growing"}</span>
-  </button>
-);
+const AreaCard = ({ area, onClick }) => {
+  const people = area.people || [];
+  const allApproved = area.ready && people.length > 0 && people.every((p) => p.is_approved);
 
-const PeopleModal = ({ area, onClose }) => (
-  <div
-    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-"
-    onClick={onClose}
-  >
-    <div
-      className="bg-white rounded-2xl shadow-lg w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden"
-      onClick={(e) => e.stopPropagation()}
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-xl p-4 text-center flex flex-col items-center transition-transform duration-150 hover:scale-[1.02] cursor-pointer ${
+        area.ready ? "bg-[#2CD377] text-white" : "bg-[#E7ECE8] text-gray-800"
+      }`}
     >
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-        <div>
-          <p className="text-sm font-bold text-gray-800">{area.area_name}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{area.count} on waitlist</p>
-        </div>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 cursor-pointer">
-          <CloseIcon className="h-5 w-5" />
-        </button>
-      </div>
-      <div className="overflow-y-auto px-5 py-3 flex flex-col gap-2">
-        {(area.people || []).length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-6">No people found for this area.</p>
-        )}
-        {(area.people || []).map((p, i) => (
-          <div key={p.id ?? i} className="flex items-center gap-3 border border-gray-100 rounded-xl px-3 py-2.5">
-            <div className="h-8 w-8 rounded-full bg-[#2CD377]/10 flex items-center justify-center shrink-0">
-              <UserIcon className="h-4 w-4 text-[#2CD377]" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-800 truncate">
-                {p.name || p.full_name || `Person #${p.id ?? i + 1}`}
-              </p>
-              <p className="text-xs text-gray-400 truncate">
-                {p.phone || p.email || ""}
-              </p>
-            </div>
+      <MapPinIcon className="h-4 w-4 mb-2" />
+      <p className="text-[14px] font-bold leading-tight line-clamp-2">{getZoneName(area)}</p>
+      <p className="text-[32px] font-bold leading-tight mt-1">{area.count}</p>
+      <span className="text-[12px] opacity-80 mt-1">
+        {allApproved ? "✅ Access Given" : area.ready ? "Ready" : "Growing"}
+      </span>
+    </button>
+  );
+};
+
+const PeopleModal = ({ area, onClose, onApproved }) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState(null); // { type: "success" | "error", message: string }
+  const people = area.people || [];
+
+  const handleGiveAccess = async () => {
+    const ids = people.map((p) => p.id).filter((id) => id !== undefined && id !== null);
+    if (ids.length === 0) return;
+    setSubmitting(true);
+    setStatus(null);
+    try {
+      await approveWaitlistBatch(ids);
+      setStatus({ type: "success", message: "✅ Access granted! They can now order." });
+      onApproved(getZoneName(area), ids);
+    } catch (err) {
+      setStatus({ type: "error", message: err.message || "Failed to grant access" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-lg w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div>
+            <p className="text-sm font-bold text-gray-800">{getZoneName(area)}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{area.count} on waitlist</p>
           </div>
-        ))}
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 cursor-pointer">
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        {area.ready && (
+          <div className="px-5 pt-4 flex flex-col gap-2">
+            <button
+              onClick={handleGiveAccess}
+              disabled={submitting}
+              className="w-full py-2.5 bg-[#2CD377] text-white text-sm font-semibold rounded-xl hover:bg-[#25b869] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            >
+              {submitting ? "Granting access..." : "Give Access to All"}
+            </button>
+            {status && (
+              <p className={`text-xs font-medium text-center ${status.type === "success" ? "text-[#2CD377]" : "text-red-500"}`}>
+                {status.message}
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="overflow-y-auto px-5 py-3 flex flex-col gap-2">
+          {people.length === 0 && (
+            <p className="text-sm text-gray-400 text-center py-6">No people found for this area.</p>
+          )}
+          {people.map((p, i) => (
+            <div key={p.id ?? i} className="flex items-center gap-3 border border-gray-100 rounded-xl px-3 py-2.5">
+              <div className="h-8 w-8 rounded-full bg-[#2CD377]/10 flex items-center justify-center shrink-0">
+                <UserIcon className="h-4 w-4 text-[#2CD377]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-gray-800 truncate">
+                  {p.name || p.full_name || `Person #${p.id ?? i + 1}`}
+                </p>
+                <p className="text-xs text-gray-400 truncate">
+                  {p.phone || p.email || ""}
+                </p>
+              </div>
+              <span
+                className={`text-[11px] font-semibold px-2 py-1 rounded-full shrink-0 ${
+                  p.is_approved ? "bg-[#2CD377]/10 text-[#2CD377]" : "bg-gray-100 text-gray-500"
+                }`}
+              >
+                {p.is_approved ? "✅ Approved" : "Pending"}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const Waitlist = () => {
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [selectedArea, setSelectedArea] = useState(null);
+  const [selectedAreaName, setSelectedAreaName] = useState(null);
   const hasLoadedOnce = useRef(false);
 
   const fetchAreas = async () => {
@@ -133,6 +189,22 @@ const Waitlist = () => {
 
   const totalPeople = areas.reduce((sum, a) => sum + (a.count || 0), 0);
   const readyCount = areas.filter((a) => a.ready).length;
+  const selectedArea = areas.find((a) => getZoneName(a) === selectedAreaName) || null;
+
+  const handleApproved = (areaName, approvedIds) => {
+    setAreas((prev) =>
+      prev.map((a) =>
+        getZoneName(a) === areaName
+          ? {
+              ...a,
+              people: (a.people || []).map((p) =>
+                approvedIds.includes(p.id) ? { ...p, is_approved: true } : p,
+              ),
+            }
+          : a,
+      ),
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -195,12 +267,18 @@ const Waitlist = () => {
       {!loading && !error && areas.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {areas.map((area) => (
-            <AreaCard key={area.area_name} area={area} onClick={() => setSelectedArea(area)} />
+            <AreaCard key={getZoneName(area)} area={area} onClick={() => setSelectedAreaName(getZoneName(area))} />
           ))}
         </div>
       )}
 
-      {selectedArea && <PeopleModal area={selectedArea} onClose={() => setSelectedArea(null)} />}
+      {selectedArea && (
+        <PeopleModal
+          area={selectedArea}
+          onClose={() => setSelectedAreaName(null)}
+          onApproved={handleApproved}
+        />
+      )}
     </div>
   );
 };
