@@ -16,6 +16,57 @@ const statusStyle = (status) => {
   }
 };
 
+const Stat = ({ label, value, valueClass = "text-gray-800" }) => (
+  <div className="rounded-xl bg-gray-50 px-3 py-2">
+    <p className="text-[10px] uppercase tracking-wide text-gray-400">{label}</p>
+
+    <p className={`mt-0.5 text-xs font-bold ${valueClass}`}>{value}</p>
+  </div>
+);
+
+const SettlementCard = ({ settlement: s, onView }) => (
+  <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-sm">
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold text-gray-800">
+          {s.week_start}
+        </p>
+
+        <p className="mt-0.5 truncate text-xs text-gray-400">to {s.week_end}</p>
+      </div>
+
+      <span
+        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${statusStyle(
+          s.status,
+        )}`}
+      >
+        {s.status}
+      </span>
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+      <Stat label="Orders" value={s.total_orders} />
+
+      <Stat label="Payable" value={`₹${Number(s.kitchen_payable).toFixed(2)}`} />
+
+      <Stat label="Paid" value={`₹${Number(s.paid_amount).toFixed(2)}`} />
+
+      <Stat
+        label="Balance"
+        value={`₹${Number(s.balance_amount).toFixed(2)}`}
+        valueClass="text-red-600"
+      />
+    </div>
+
+    <button
+      onClick={onView}
+      className="w-full rounded-xl border border-[#2CD377] py-2.5 text-sm font-semibold text-[#2CD377] transition hover:bg-[#2CD377] hover:text-white cursor-pointer"
+    >
+      View
+    </button>
+  </div>
+);
+
 const Settlement = () => {
   const [settlements, setSettlements] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,8 +120,8 @@ const Settlement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col p-5 gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-gray-900">Settlements</h1>
 
           <p className="mt-1 text-sm text-gray-500">
@@ -81,7 +132,7 @@ const Settlement = () => {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2CD377] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#23bf69] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#2CD377] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#23bf69] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {generating ? (
             <>
@@ -122,94 +173,108 @@ const Settlement = () => {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="min-w-[950px] w-full">
-              <thead className="bg-gray-50">
-                <tr className="border-b border-gray-200">
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Week
-                  </th>
-
-                  <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Orders
-                  </th>
-
-                  <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Kitchen Payable
-                  </th>
-
-                  <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Paid
-                  </th>
-
-                  <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Balance
-                  </th>
-
-                  <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Status
-                  </th>
-
-                  <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-gray-100">
-                {settlements.map((s) => (
-                  <tr key={s.id} className="transition hover:bg-gray-50">
-                    <td className="px-6 py-5">
-                      <div className="font-semibold text-gray-900">
-                        {s.week_start}
-                      </div>
-
-                      <div className="mt-1 text-sm text-gray-500">
-                        to {s.week_end}
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-5 text-center font-medium text-gray-700">
-                      {s.total_orders}
-                    </td>
-
-                    <td className="px-6 py-5 text-right font-semibold text-gray-900">
-                      ₹{Number(s.kitchen_payable).toFixed(2)}
-                    </td>
-
-                    <td className="px-6 py-5 text-right text-gray-700">
-                      ₹{Number(s.paid_amount).toFixed(2)}
-                    </td>
-
-                    <td className="px-6 py-5 text-right font-semibold text-red-600">
-                      ₹{Number(s.balance_amount).toFixed(2)}
-                    </td>
-
-                    <td className="px-6 py-5 text-center">
-                      <span
-                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusStyle(
-                          s.status,
-                        )}`}
-                      >
-                        {s.status}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-5 text-center">
-                      <button
-                        onClick={() => navigate(`/settlements/${s.id}`)}
-                        className="rounded-lg border border-[#2CD377] px-4 py-2 text-sm font-medium text-[#2CD377] transition hover:bg-[#2CD377] hover:text-white cursor-pointer"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <>
+          {/* Mobile cards */}
+          <div className="flex flex-col gap-3 sm:hidden">
+            {settlements.map((s) => (
+              <SettlementCard
+                key={s.id}
+                settlement={s}
+                onView={() => navigate(`/settlements/${s.id}`)}
+              />
+            ))}
           </div>
-        </div>
+
+          {/* Desktop table */}
+          <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm sm:block">
+            <div className="overflow-x-auto">
+              <table className="min-w-[950px] w-full">
+                <thead className="bg-gray-50">
+                  <tr className="border-b border-gray-200">
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Week
+                    </th>
+
+                    <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Orders
+                    </th>
+
+                    <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Kitchen Payable
+                    </th>
+
+                    <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Paid
+                    </th>
+
+                    <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Balance
+                    </th>
+
+                    <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Status
+                    </th>
+
+                    <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-100">
+                  {settlements.map((s) => (
+                    <tr key={s.id} className="transition hover:bg-gray-50">
+                      <td className="px-6 py-5">
+                        <div className="font-semibold text-gray-900">
+                          {s.week_start}
+                        </div>
+
+                        <div className="mt-1 text-sm text-gray-500">
+                          to {s.week_end}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-5 text-center font-medium text-gray-700">
+                        {s.total_orders}
+                      </td>
+
+                      <td className="px-6 py-5 text-right font-semibold text-gray-900">
+                        ₹{Number(s.kitchen_payable).toFixed(2)}
+                      </td>
+
+                      <td className="px-6 py-5 text-right text-gray-700">
+                        ₹{Number(s.paid_amount).toFixed(2)}
+                      </td>
+
+                      <td className="px-6 py-5 text-right font-semibold text-red-600">
+                        ₹{Number(s.balance_amount).toFixed(2)}
+                      </td>
+
+                      <td className="px-6 py-5 text-center">
+                        <span
+                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusStyle(
+                            s.status,
+                          )}`}
+                        >
+                          {s.status}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-5 text-center">
+                        <button
+                          onClick={() => navigate(`/settlements/${s.id}`)}
+                          className="rounded-lg border border-[#2CD377] px-4 py-2 text-sm font-medium text-[#2CD377] transition hover:bg-[#2CD377] hover:text-white cursor-pointer"
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
