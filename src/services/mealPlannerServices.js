@@ -11,3 +11,9 @@ export const getPendingMealPlannerCustomers = async () => {
     );
   }
 };
+export const autoPlanMeals = async (subscriptionId, targetDate) => {
+  const res = await apiClient.post(`api/admin/meal-planner/${subscriptionId}/auto-plan`, {
+    target_date: targetDate,
+  });
+  return res.data;
+};

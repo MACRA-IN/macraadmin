@@ -4,6 +4,8 @@ import {
   getsettlements,
 } from "../../services/settlementServices";
 import { useNavigate } from "react-router-dom";
+import Toast from "../../components/ui/toast";
+import useToast from "../../hooks/useToast";
 
 const statusStyle = (status) => {
   switch (status) {
@@ -73,6 +75,7 @@ const Settlement = () => {
   const [generating, setGenerating] = useState(false);
 
   const navigate = useNavigate();
+  const { toast, showSuccess, showError, dismiss } = useToast();
 
   const fetchSettlements = async () => {
     try {
@@ -99,11 +102,15 @@ const Settlement = () => {
       const response = await generateSettlement();
 
       if (response.success) {
-        alert(response.message || "Settlement generated successfully.");
+        showSuccess(response.message || "Settlement generated successfully.");
         fetchSettlements();
+      } else {
+        showError(response.message || "Failed to generate settlement.");
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to generate settlement.");
+      showError(
+        error.response?.data?.message || "Failed to generate settlement.",
+      );
     } finally {
       setGenerating(false);
     }
@@ -276,6 +283,8 @@ const Settlement = () => {
           </div>
         </>
       )}
+
+      <Toast toast={toast} onDismiss={dismiss} />
     </div>
   );
 };

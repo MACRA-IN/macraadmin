@@ -44,3 +44,15 @@ export const getLocationChecks = async () => {
     throw new Error(error.response?.data?.message || "Failed to fetch location checks");
   }
 };
+
+
+
+export const getAllSubscriptions = async (status) => {
+  const res = await apiClient.get("api/admin/subscriptions", { params: status ? { status } : {} });
+  return res.data.data;
+};
+
+export const getSubscriptionDetail = async (subscriptionId) => {
+  const res = await apiClient.get(`api/admin/subscriptions/${subscriptionId}`);
+  return res.data.data;
+};

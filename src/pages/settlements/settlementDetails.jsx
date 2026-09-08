@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getSettlementById, markSettlementPaid } from "../../services/settlementServices";
+import Toast from "../../components/ui/toast";
+import useToast from "../../hooks/useToast";
 
 const statusStyle = (status) => {
   if (status === "paid") return "bg-green-50 text-green-600";
@@ -23,6 +25,9 @@ const SettlementDetails = () => {
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [amount, setAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const { toast, showSuccess, showError, dismiss } = useToast();
 
   const fetchSettlement = async () => {
     try {
@@ -40,17 +45,37 @@ const SettlementDetails = () => {
 
   useEffect(() => { fetchSettlement(); }, []);
 
+  const closePaymentModal = () => {
+    setShowPaymentModal(false);
+    setAmount("");
+    setAmountError("");
+  };
+
   const handlePayment = async () => {
-    if (!amount || Number(amount) <= 0) { alert("Enter a valid amount."); return; }
+    if (!amount || Number(amount) <= 0) {
+      setAmountError("Enter an amount greater than zero.");
+      return;
+    }
+    if (Number(amount) > Number(settlement.balance_amount)) {
+      setAmountError(`Cannot exceed the ₹${settlement.balance_amount} balance.`);
+      return;
+    }
+
+    setAmountError("");
+    setSaving(true);
     try {
       const response = await markSettlementPaid(settlement.id, Number(amount));
       if (response.success) {
-        setShowPaymentModal(false);
-        setAmount("");
+        closePaymentModal();
+        showSuccess(response.message || "Payment recorded.");
         fetchSettlement();
+      } else {
+        showError(response.message || "Payment failed.");
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Payment failed.");
+      showError(error.response?.data?.message || "Payment failed.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -198,29 +223,42 @@ const SettlementDetails = () => {
                 min="1"
                 max={settlement.balance_amount}
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => { setAmount(e.target.value); setAmountError(""); }}
                 placeholder="Enter payment amount"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:border-[#2CD377] focus:ring-2 focus:ring-[#2CD377]/20 transition"
+                aria-invalid={Boolean(amountError)}
+                className={`w-full border rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:ring-2 transition ${
+                  amountError
+                    ? "border-red-300 focus:border-red-400 focus:ring-red-100"
+                    : "border-gray-200 focus:border-[#2CD377] focus:ring-[#2CD377]/20"
+                }`}
               />
+
+              {amountError && (
+                <p className="mt-1.5 text-xs font-medium text-red-500">{amountError}</p>
+              )}
             </div>
 
             <div className="mt-5 flex gap-2">
               <button
-                onClick={() => { setShowPaymentModal(false); setAmount(""); }}
-                className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition cursor-pointer"
+                onClick={closePaymentModal}
+                disabled={saving}
+                className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handlePayment}
-                className="flex-1 bg-[#2CD377] hover:bg-[#25bc6a] text-white rounded-xl py-2.5 text-sm font-bold transition shadow-lg shadow-[#2CD377]/30 cursor-pointer"
+                disabled={saving}
+                className="flex-1 bg-[#2CD377] hover:bg-[#25bc6a] text-white rounded-xl py-2.5 text-sm font-bold transition shadow-lg shadow-[#2CD377]/30 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                Save Payment
+                {saving ? "Saving..." : "Save Payment"}
               </button>
             </div>
           </div>
         </div>
       )}
+
+      <Toast toast={toast} onDismiss={dismiss} />
     </div>
   );
 };
