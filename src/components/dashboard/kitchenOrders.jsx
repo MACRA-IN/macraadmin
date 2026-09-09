@@ -4,6 +4,37 @@ import {
   triggerCreateOrders,
 } from "../../services/dashboardServices";
 
+// "both" means salad and rice — spell it out so the kitchen isn't guessing.
+const MEAL_TYPE_LABELS = {
+  salad: "Salad",
+  rice: "Rice",
+  both: "Salad + Rice",
+};
+
+const mealTypeStyle = (mealType) => {
+  if (mealType === "salad") return "bg-[#2CD377]/10 text-[#2CD377]";
+  if (mealType === "rice") return "bg-amber-50 text-amber-600";
+  if (mealType === "both") return "bg-purple-50 text-purple-600";
+  return "bg-gray-100 text-gray-500";
+};
+
+const MealTypeBadge = ({ mealType, size = "md" }) => {
+  if (!mealType) return <span className="text-xs text-gray-300">—</span>;
+
+  const sizing =
+    size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs";
+
+  return (
+    <span
+      className={`inline-block whitespace-nowrap rounded-full font-semibold ${sizing} ${mealTypeStyle(
+        mealType,
+      )}`}
+    >
+      {MEAL_TYPE_LABELS[mealType] || mealType}
+    </span>
+  );
+};
+
 const KitchenOrders = () => {
   const [orders, setOrders] = useState([]);
   const [message, setMessage] = useState("");
@@ -44,7 +75,7 @@ const KitchenOrders = () => {
   };
 
   const handleSendToKitchen = () => {
-    const phone = "919381972536";
+    const phone = "919346050155";
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
@@ -62,6 +93,7 @@ const OrderTable = ({ list }) => (
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">ID</th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Category</th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Product</th>
+            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Meal Type</th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Address</th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Phone</th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Status</th>
@@ -77,6 +109,9 @@ const OrderTable = ({ list }) => (
               <td className="px-5 py-3.5 font-bold text-[#2CD377]">#{order.id}</td>
               <td className="px-5 py-3.5">{order.category_name}</td>
               <td className="px-5 py-3.5">{order.product_name}</td>
+              <td className="px-5 py-3.5">
+                <MealTypeBadge mealType={order.meal_type} />
+              </td>
               <td className="px-5 py-3.5 max-w-xs truncate">{order.address}</td>
               <td className="px-5 py-3.5">{order.customer_phone || "—"}</td>
               <td className="px-5 py-3.5">
@@ -111,6 +146,12 @@ const OrderTable = ({ list }) => (
               <p className="font-semibold text-sm text-gray-900 mt-1">
                 {order.product_name}
               </p>
+
+              {order.meal_type && (
+                <div className="mt-1.5">
+                  <MealTypeBadge mealType={order.meal_type} size="sm" />
+                </div>
+              )}
             </div>
 
             <span className="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-full capitalize whitespace-nowrap">
