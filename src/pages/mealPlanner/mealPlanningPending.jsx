@@ -56,6 +56,18 @@ const StatTile = ({ label, value }) => (
   </div>
 );
 
+/** "2026-10-03" as a local calendar day, so it never renders one day early. */
+const fmtDate = (iso) => {
+  if (!iso) return "—";
+  const parts = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  const d = parts
+    ? new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]))
+    : new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? iso
+    : d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+};
+
 const PendingCustomerCard = ({ customer, planning, onAutoPlan }) => (
   <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-sm">
     <div className="flex items-center justify-between gap-3">
@@ -68,14 +80,17 @@ const PendingCustomerCard = ({ customer, planning, onAutoPlan }) => (
           <p className="truncate text-xs text-gray-400">{customer.phone}</p>
         </div>
       </div>
-      <span className="shrink-0 rounded-full bg-yellow-50 px-2.5 py-1 text-xs font-semibold text-yellow-600">
-        Pending
+      <span className="shrink-0 whitespace-nowrap rounded-full bg-yellow-50 px-2.5 py-1 text-xs font-semibold text-yellow-600">
+        {customer.not_planned != null
+          ? `${customer.not_planned} to plan`
+          : "Pending"}
       </span>
     </div>
 
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-3 gap-2">
       <StatTile label="Plan" value={customer.plan} />
-      <StatTile label="End Date" value={customer.end_date} />
+      <StatTile label="From" value={fmtDate(customer.target_date)} />
+      <StatTile label="Until" value={fmtDate(customer.end_date)} />
     </div>
 
     <div className="grid grid-cols-2 gap-2">
@@ -164,7 +179,7 @@ const MealPlanningPending = () => {
         <div className="min-w-0">
           <h1 className="text-xl font-bold text-gray-800">Meal Planning</h1>
           <p className="mt-0.5 text-sm text-gray-400">
-            Customers pending meal plan for next week
+            Customers with meals still to plan, through their end date
           </p>
         </div>
 
@@ -202,7 +217,7 @@ const MealPlanningPending = () => {
             <>
               <p className="text-sm font-bold text-[#2CD377]">All caught up!</p>
               <p className="mt-0.5 text-xs text-gray-400">
-                Everyone has planned their meals for next week.
+                Every active subscription is planned through its end date.
               </p>
             </>
           ) : (
@@ -256,7 +271,10 @@ const MealPlanningPending = () => {
                       Plan
                     </th>
                     <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
-                      End Date
+                      To Plan
+                    </th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+                      Planning Window
                     </th>
                     <th className="px-5 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-400">
                       Action
@@ -293,8 +311,14 @@ const MealPlanningPending = () => {
 
                       <td className="px-5 py-3.5 text-gray-600">{customer.plan}</td>
 
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <span className="rounded-full bg-yellow-50 px-2.5 py-1 text-xs font-semibold text-yellow-600">
+                          {customer.not_planned ?? "—"}
+                        </span>
+                      </td>
+
                       <td className="px-5 py-3.5 whitespace-nowrap text-gray-500">
-                        {customer.end_date}
+                        {fmtDate(customer.target_date)} → {fmtDate(customer.end_date)}
                       </td>
 
                       <td className="px-5 py-3.5">
@@ -330,7 +354,17 @@ const MealPlanningPending = () => {
       <ConfirmDialog
         open={Boolean(confirmCustomer)}
         title={`Auto-plan meals for ${confirmCustomer?.customer_name ?? ""}?`}
-        message="All remaining meals will be filled in automatically. They will be notified to review and change them."
+        message={
+          confirmCustomer
+            ? `${confirmCustomer.not_planned ?? "All"} remaining ${
+                confirmCustomer.not_planned === 1 ? "meal" : "meals"
+              } will be filled in automatically, from ${fmtDate(
+                confirmCustomer.target_date,
+              )} through ${fmtDate(
+                confirmCustomer.end_date,
+              )} — the end of the subscription. They will be notified to review and change them.`
+            : ""
+        }
         confirmLabel="Plan Meals"
         busyLabel="Planning..."
         busy={planningId === confirmCustomer?.subscription_id}
