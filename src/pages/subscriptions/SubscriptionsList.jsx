@@ -42,7 +42,9 @@ const fmtPrice = (value) => {
 };
 
 const SubscriptionCard = ({ subscription: s, onOpen }) => {
-  const total = Number(s.total_delivery_days) || 0;
+  // total_meals counts bowls (days x slots); total_delivery_days counts days and
+  // would read 200% for a lunch+dinner customer.
+  const total = Number(s.total_meals ?? s.total_delivery_days) || 0;
   const planned = Number(s.planned_meals) || 0;
   const percent = total > 0 ? Math.round((planned / total) * 100) : 0;
 

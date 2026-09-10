@@ -591,7 +591,11 @@ const SubscriptionDetail = () => {
 
       {/* Progress */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Total days" value={progress.total_delivery_days} />
+        {/* All four are bowl counts, so the total has to be meals, not days. */}
+        <StatCard
+          label="Total meals"
+          value={progress.total_meals ?? progress.total_delivery_days}
+        />
         <StatCard
           label="Planned"
           value={progress.planned_meals}
