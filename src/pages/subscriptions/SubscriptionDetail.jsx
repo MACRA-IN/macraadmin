@@ -5,6 +5,7 @@ import {
   getTierProducts,
   shuffleMealSlots,
   updateMealSlot,
+  extendSubscription,
 } from "../../services/subscriptionServices";
 import ConfirmDialog from "../../components/ui/confirmDialog";
 import Toast from "../../components/ui/toast";
@@ -14,26 +15,98 @@ import useToast from "../../hooks/useToast";
 /*  Icons                                                            */
 /* ---------------------------------------------------------------- */
 const BackIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M15 19l-7-7 7-7"
+    />
   </svg>
 );
 
 const PencilIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+    />
   </svg>
 );
 
 const LockIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+    />
   </svg>
 );
 
 const WhatsAppIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 32 32" fill="currentColor">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 32 32"
+    fill="currentColor"
+  >
     <path d="M16 0C7.163 0 0 7.163 0 16c0 2.833.738 5.494 2.031 7.807L0 32l8.418-2.007A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 01-6.79-1.858l-.487-.29-5.002 1.194 1.257-4.866-.317-.5A13.267 13.267 0 012.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.862c-.398-.199-2.352-1.16-2.717-1.292-.364-.133-.63-.199-.895.199-.265.398-1.028 1.292-1.26 1.558-.232.265-.464.298-.862.1-.398-.2-1.681-.62-3.202-1.977-1.183-1.056-1.982-2.36-2.214-2.758-.232-.398-.025-.613.174-.811.179-.178.398-.464.597-.696.2-.232.265-.398.398-.664.133-.265.066-.497-.033-.696-.1-.199-.895-2.157-1.226-2.953-.323-.775-.65-.67-.895-.682-.232-.01-.497-.013-.762-.013-.265 0-.696.1-1.061.497-.364.398-1.393 1.36-1.393 3.317s1.426 3.847 1.625 4.113c.199.265 2.806 4.284 6.798 6.01.95.41 1.692.655 2.27.839.954.303 1.822.26 2.509.158.765-.114 2.352-.961 2.684-1.889.332-.928.332-1.724.232-1.889-.099-.165-.364-.265-.762-.464z" />
+  </svg>
+);
+
+const ShuffleIcon = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"
+    />
+  </svg>
+);
+
+const CloseIcon = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6 18L18 6M6 6l12 12"
+    />
   </svg>
 );
 
@@ -47,20 +120,28 @@ const statusStyle = (status) => {
   return "bg-gray-100 text-gray-500";
 };
 
-/** "2026-09-09" is parsed as a local calendar day, not UTC midnight, so a
- *  delivery date never renders one day early. */
+/** Parse DATEONLY values as local calendar dates. */
 const parseDate = (iso) => {
   if (!iso) return null;
+
   const parts = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+
   if (parts) {
-    return new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]));
+    return new Date(
+      Number(parts[1]),
+      Number(parts[2]) - 1,
+      Number(parts[3]),
+    );
   }
+
   const d = new Date(iso);
+
   return Number.isNaN(d.getTime()) ? null : d;
 };
 
 const fmtDate = (iso) => {
   const d = parseDate(iso);
+
   return d
     ? d.toLocaleDateString("en-IN", {
         day: "numeric",
@@ -70,18 +151,27 @@ const fmtDate = (iso) => {
     : iso || "—";
 };
 
-/** plan_price arrives as a string like "796.00". */
 const fmtPrice = (value) => {
   const n = Number(value);
-  return Number.isFinite(n) ? `₹${n.toLocaleString("en-IN")}` : `₹${value}`;
+
+  return Number.isFinite(n)
+    ? `₹${n.toLocaleString("en-IN")}`
+    : `₹${value}`;
 };
 
 const dayParts = (iso) => {
   const d = parseDate(iso);
+
   if (!d) return { day: iso, weekday: "" };
+
   return {
-    day: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
-    weekday: d.toLocaleDateString("en-IN", { weekday: "short" }),
+    day: d.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+    }),
+    weekday: d.toLocaleDateString("en-IN", {
+      weekday: "short",
+    }),
   };
 };
 
@@ -90,17 +180,29 @@ const dayParts = (iso) => {
 /* ---------------------------------------------------------------- */
 const Field = ({ label, value }) => (
   <div className="min-w-0">
-    <p className="text-[10px] uppercase tracking-wide text-gray-400">{label}</p>
+    <p className="text-[10px] uppercase tracking-wide text-gray-400">
+      {label}
+    </p>
+
     <p className="mt-0.5 truncate text-sm font-semibold text-gray-800">
       {value || "—"}
     </p>
   </div>
 );
 
-const StatCard = ({ label, value, valueClass = "text-gray-800" }) => (
+const StatCard = ({
+  label,
+  value,
+  valueClass = "text-gray-800",
+}) => (
   <div className="rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
-    <p className={`text-xl font-bold ${valueClass}`}>{value ?? 0}</p>
-    <p className="mt-0.5 text-xs text-gray-400">{label}</p>
+    <p className={`text-xl font-bold ${valueClass}`}>
+      {value ?? 0}
+    </p>
+
+    <p className="mt-0.5 text-xs text-gray-400">
+      {label}
+    </p>
   </div>
 );
 
@@ -114,6 +216,7 @@ const SlotTile = ({ slot, muted, onEdit }) => {
           <p className="text-[10px] uppercase tracking-wide text-gray-400">
             {slot.slot}
           </p>
+
           <p className="mt-0.5 truncate text-xs font-medium text-gray-400">
             Not planned
           </p>
@@ -147,6 +250,7 @@ const SlotTile = ({ slot, muted, onEdit }) => {
               slot.is_veg ? "bg-[#2CD377]" : "bg-red-500"
             }`}
           />
+
           <p className="text-[10px] uppercase tracking-wide text-gray-400">
             {slot.slot}
           </p>
@@ -181,25 +285,23 @@ const SlotTile = ({ slot, muted, onEdit }) => {
   );
 };
 
-const ShuffleIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
-  </svg>
-);
-
-const CloseIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-
-/** Pick a different bowl for one slot. */
-const ProductPicker = ({ slot, date, products, loading, saving, onPick, onClose }) => {
+const ProductPicker = ({
+  slot,
+  date,
+  products,
+  loading,
+  saving,
+  onPick,
+  onClose,
+}) => {
   const [query, setQuery] = useState("");
 
   const term = query.trim().toLowerCase();
+
   const shown = term
-    ? products.filter((p) => p.name?.toLowerCase().includes(term))
+    ? products.filter((p) =>
+        p.name?.toLowerCase().includes(term),
+      )
     : products;
 
   return (
@@ -215,7 +317,10 @@ const ProductPicker = ({ slot, date, products, loading, saving, onPick, onClose 
       >
         <div className="flex items-start justify-between gap-3 border-b border-gray-100 px-5 py-4">
           <div className="min-w-0">
-            <p className="text-base font-bold text-gray-800">Change bowl</p>
+            <p className="text-base font-bold text-gray-800">
+              Change bowl
+            </p>
+
             <p className="mt-0.5 truncate text-xs text-gray-400">
               <span className="capitalize">{slot.slot}</span> · {date}
             </p>
@@ -257,6 +362,7 @@ const ProductPicker = ({ slot, date, products, loading, saving, onPick, onClose 
             <div className="flex flex-col gap-2">
               {shown.map((p) => {
                 const current = p.id === slot.product_id;
+
                 return (
                   <button
                     key={p.id}
@@ -287,10 +393,12 @@ const ProductPicker = ({ slot, date, products, loading, saving, onPick, onClose 
                             p.is_veg ? "bg-[#2CD377]" : "bg-red-500"
                           }`}
                         />
+
                         <p className="truncate text-sm font-semibold text-gray-800">
                           {p.name}
                         </p>
                       </div>
+
                       <p className="mt-0.5 truncate text-[11px] text-gray-400">
                         {p.protein_g}g protein · {p.calories} kcal
                       </p>
@@ -314,28 +422,34 @@ const ProductPicker = ({ slot, date, products, loading, saving, onPick, onClose 
 
 const CalendarRow = ({ entry, onEdit }) => {
   const { day, weekday } = dayParts(entry.date);
-  const inactive = entry.paused || entry.off_day;
-  const label = entry.paused ? "Paused" : entry.off_day ? "No delivery" : null;
+
+  const isSunday = parseDate(entry.date)?.getDay() === 0;
+  const inactive = entry.paused || entry.off_day || isSunday;
+
+  const label = entry.paused
+    ? "Paused"
+    : entry.off_day || isSunday
+      ? "No delivery"
+      : null;
+
   const slots = entry.slots || [];
 
   return (
     <div
-      className={`flex flex-col gap-3 rounded-2xl border px-4 py-3 sm:flex-row sm:items-center ${
+      className={`rounded-2xl border px-4 py-3 ${
         inactive ? "border-gray-100 bg-gray-50" : "border-gray-100 bg-white shadow-sm"
       }`}
     >
-      <div className="flex items-center justify-between gap-2 sm:w-28 sm:shrink-0 sm:flex-col sm:items-start">
-        <div className="min-w-0">
-          <p
-            className={`truncate text-sm font-bold ${
-              inactive ? "text-gray-400" : "text-gray-800"
-            }`}
-          >
+      {/* Date header row */}
+      <div className="flex items-center gap-2 mb-2">
+        <div className="min-w-0 flex-1">
+          <p className={`text-sm font-bold ${
+            inactive ? "text-gray-400" : "text-gray-800"
+          }`}>
             {day}
+            <span className="ml-1.5 text-xs font-normal text-gray-400">{weekday}</span>
           </p>
-          <p className="truncate text-xs text-gray-400">{weekday}</p>
         </div>
-
         {label && (
           <span className="shrink-0 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-500">
             {label}
@@ -343,8 +457,9 @@ const CalendarRow = ({ entry, onEdit }) => {
         )}
       </div>
 
+      {/* Slots */}
       {slots.length > 0 ? (
-        <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {slots.map((slot) => (
             <SlotTile
               key={`${entry.date}-${slot.slot}`}
@@ -355,9 +470,7 @@ const CalendarRow = ({ entry, onEdit }) => {
           ))}
         </div>
       ) : (
-        <p className="min-w-0 flex-1 text-xs text-gray-400">
-          {label || "No slots"}
-        </p>
+        <p className="text-xs text-gray-400">{label || "No slots"}</p>
       )}
     </div>
   );
@@ -375,12 +488,19 @@ const SubscriptionDetail = () => {
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  const [editing, setEditing] = useState(null); // { slot, date }
+  const [editing, setEditing] = useState(null);
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+
   const [confirmShuffle, setConfirmShuffle] = useState(false);
   const [shuffling, setShuffling] = useState(false);
+
+  const [showExtend, setShowExtend] = useState(false);
+  const [extensionMode, setExtensionMode] = useState("days");
+  const [extensionDays, setExtensionDays] = useState(1);
+  const [customEndDate, setCustomEndDate] = useState("");
+  const [extending, setExtending] = useState(false);
 
   const { toast, showSuccess, showError, dismiss } = useToast();
 
@@ -389,13 +509,20 @@ const SubscriptionDetail = () => {
 
     const load = async () => {
       setLoading(true);
+
       try {
         const json = await getSubscriptionById(subscriptionId);
+
         if (cancelled) return;
+
         setData(json);
         setError("");
       } catch (err) {
-        if (!cancelled) setError(err.message || "Failed to load subscription");
+        if (!cancelled) {
+          setError(
+            err.message || "Failed to load subscription",
+          );
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -413,10 +540,10 @@ const SubscriptionDetail = () => {
   const handleEditSlot = async (slot, date) => {
     setEditing({ slot, date });
 
-    // The tier list is the same for every slot, so only fetch it once.
     if (products.length > 0) return;
 
     setProductsLoading(true);
+
     try {
       const json = await getTierProducts(subscriptionId);
       setProducts(json?.products || []);
@@ -431,16 +558,24 @@ const SubscriptionDetail = () => {
     if (!editing?.slot?.meal_planner_id) return;
 
     setSaving(true);
+
     try {
       const json = await updateMealSlot(
         editing.slot.meal_planner_id,
         product.id,
       );
+
       setEditing(null);
-      showSuccess(json?.message || `Swapped to ${product.name}`);
+
+      showSuccess(
+        json?.message || `Swapped to ${product.name}`,
+      );
+
       refresh();
     } catch (err) {
-      showError(err.message || "Failed to update the slot");
+      showError(
+        err.message || "Failed to update the slot",
+      );
     } finally {
       setSaving(false);
     }
@@ -448,16 +583,80 @@ const SubscriptionDetail = () => {
 
   const handleShuffle = async () => {
     setShuffling(true);
+
     try {
       const json = await shuffleMealSlots(subscriptionId);
+
       setConfirmShuffle(false);
+
       showSuccess(json?.message || "Meals shuffled");
+
       refresh();
     } catch (err) {
       setConfirmShuffle(false);
-      showError(err.message || "Failed to shuffle meals");
+
+      showError(
+        err.message || "Failed to shuffle meals",
+      );
     } finally {
       setShuffling(false);
+    }
+  };
+
+  const getDeliveryDays = (startDate, endDate) => {
+    let date = parseDate(startDate);
+    const end = parseDate(endDate);
+    let days = 0;
+
+    if (!date || !end || end <= date) return 0;
+
+    while (date < end) {
+      date.setDate(date.getDate() + 1);
+      if (date.getDay() !== 0) days++;
+    }
+
+    return days;
+  };
+
+  const handleExtendSubscription = async () => {
+    const days =
+      extensionMode === "days"
+        ? Number(extensionDays)
+        : getDeliveryDays(subscription.end_date, customEndDate);
+
+    if (!Number.isInteger(days) || days <= 0) {
+      showError(
+        extensionMode === "days"
+          ? "Please enter a valid number of days"
+          : "Please select a date after the current end date",
+      );
+      return;
+    }
+
+    setExtending(true);
+
+    try {
+      const json = await extendSubscription(
+        subscriptionId,
+        days,
+      );
+
+      setShowExtend(false);
+      setExtensionDays(1);
+      setCustomEndDate("");
+      setExtensionMode("days");
+
+      showSuccess(
+        json?.message || `Subscription extended by ${days} days`,
+      );
+
+      refresh();
+    } catch (err) {
+      showError(
+        err.message || "Failed to extend subscription",
+      );
+    } finally {
+      setExtending(false);
     }
   };
 
@@ -475,6 +674,7 @@ const SubscriptionDetail = () => {
         <p className="text-sm font-medium text-red-500">
           {error || "Subscription not found."}
         </p>
+
         <button
           onClick={() => navigate("/subscriptions")}
           className="mt-3 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white cursor-pointer"
@@ -485,7 +685,13 @@ const SubscriptionDetail = () => {
     );
   }
 
-  const { customer = {}, subscription = {}, progress = {}, calendar = [] } = data;
+  const {
+    customer = {},
+    subscription = {},
+    progress = {},
+    calendar = [],
+  } = data;
+
   const slots = Array.isArray(subscription.delivery_slot)
     ? subscription.delivery_slot.join(", ")
     : subscription.delivery_slot;
@@ -506,6 +712,7 @@ const SubscriptionDetail = () => {
           <h1 className="truncate text-xl font-bold text-gray-800">
             {customer.name}
           </h1>
+
           <p className="mt-0.5 truncate text-sm text-gray-400">
             {subscription.plan} · {subscription.category}
           </p>
@@ -533,6 +740,7 @@ const SubscriptionDetail = () => {
             <p className="text-[10px] uppercase tracking-wide text-gray-400">
               Phone
             </p>
+
             {customer.phone ? (
               <a
                 href={`https://wa.me/91${customer.phone}`}
@@ -541,10 +749,14 @@ const SubscriptionDetail = () => {
                 className="mt-0.5 flex items-center gap-1.5 text-sm font-semibold text-[#25D366] hover:underline"
               >
                 <WhatsAppIcon className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{customer.phone}</span>
+                <span className="truncate">
+                  {customer.phone}
+                </span>
               </a>
             ) : (
-              <p className="mt-0.5 text-sm font-semibold text-gray-800">—</p>
+              <p className="mt-0.5 text-sm font-semibold text-gray-800">
+                —
+              </p>
             )}
           </div>
 
@@ -561,25 +773,57 @@ const SubscriptionDetail = () => {
 
         <div className="mt-3 grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Field label="Plan" value={subscription.plan} />
-          <Field label="Category" value={subscription.category} />
-          <Field label="Price" value={fmtPrice(subscription.plan_price)} />
-          <Field label="Slots" value={slots} />
+
           <Field
-            label="Date Range"
-            value={`${fmtDate(subscription.start_date)} — ${fmtDate(
-              subscription.end_date,
-            )}`}
+            label="Category"
+            value={subscription.category}
           />
-          <Field label="Status" value={subscription.status} />
+
+          <Field
+            label="Price"
+            value={fmtPrice(subscription.plan_price)}
+          />
+
+          <Field label="Slots" value={slots} />
+
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wide text-gray-400">
+              Date Range
+            </p>
+
+            <div className="mt-0.5 flex items-center gap-2">
+              <p className="truncate text-sm font-semibold text-gray-800">
+                {fmtDate(subscription.start_date)} —{" "}
+                {fmtDate(subscription.end_date)}
+              </p>
+
+              {subscription.status === "active" && (
+                <button
+                  onClick={() => setShowExtend(true)}
+                  className="shrink-0 rounded-lg border border-gray-200 px-2 py-1 text-[10px] font-bold text-gray-500 transition hover:border-[#2CD377] hover:text-[#2CD377] cursor-pointer"
+                >
+                  Extend
+                </button>
+              )}
+            </div>
+          </div>
+
+          <Field
+            label="Status"
+            value={subscription.status}
+          />
 
           {subscription.pause_start_date && (
             <>
               <Field
                 label="Paused"
-                value={`${fmtDate(subscription.pause_start_date)} — ${fmtDate(
+                value={`${fmtDate(
+                  subscription.pause_start_date,
+                )} — ${fmtDate(
                   subscription.pause_end_date,
                 )}`}
               />
+
               <Field
                 label="Paused Days"
                 value={subscription.total_paused_days}
@@ -591,17 +835,25 @@ const SubscriptionDetail = () => {
 
       {/* Progress */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {/* All four are bowl counts, so the total has to be meals, not days. */}
         <StatCard
           label="Total meals"
-          value={progress.total_meals ?? progress.total_delivery_days}
+          value={
+            progress.total_meals ??
+            progress.total_delivery_days
+          }
         />
+
         <StatCard
           label="Planned"
           value={progress.planned_meals}
           valueClass="text-[#2CD377]"
         />
-        <StatCard label="Order created" value={progress.order_created} />
+
+        <StatCard
+          label="Order created"
+          value={progress.order_created}
+        />
+
         <StatCard
           label="Not planned"
           value={progress.not_planned}
@@ -616,6 +868,7 @@ const SubscriptionDetail = () => {
             <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
               Calendar
             </span>
+
             <span className="rounded-full bg-[#2CD377]/10 px-2 py-0.5 text-xs font-bold text-[#2CD377]">
               {calendar.length}
             </span>
@@ -657,6 +910,136 @@ const SubscriptionDetail = () => {
           onPick={handlePickProduct}
           onClose={() => setEditing(null)}
         />
+      )}
+
+      {/* Extend Subscription */}
+      {showExtend && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !extending && setShowExtend(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-gray-800">
+                  Extend Subscription
+                </h2>
+                <p className="mt-1 text-xs text-gray-400">
+                  Current end date: {fmtDate(subscription.end_date)}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowExtend(false)}
+                disabled={extending}
+                aria-label="Close"
+                className="rounded-lg p-1 text-gray-400 transition hover:text-gray-600 disabled:opacity-50 cursor-pointer"
+              >
+                <CloseIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-5 flex rounded-xl bg-gray-100 p-1">
+              <button
+                onClick={() => setExtensionMode("days")}
+                className={`flex-1 rounded-lg px-3 py-2 text-xs font-bold ${
+                  extensionMode === "days"
+                    ? "bg-white text-gray-800 shadow-sm"
+                    : "text-gray-400"
+                }`}
+              >
+                Add Days
+              </button>
+
+              <button
+                onClick={() => setExtensionMode("date")}
+                className={`flex-1 rounded-lg px-3 py-2 text-xs font-bold ${
+                  extensionMode === "date"
+                    ? "bg-white text-gray-800 shadow-sm"
+                    : "text-gray-400"
+                }`}
+              >
+                Custom Date
+              </button>
+            </div>
+
+            {extensionMode === "days" ? (
+              <div className="mt-5">
+                <label
+                  htmlFor="extension-days"
+                  className="text-xs font-semibold text-gray-600"
+                >
+                  Add delivery days
+                </label>
+
+                <input
+                  id="extension-days"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={extensionDays}
+                  onChange={(e) => setExtensionDays(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-semibold text-gray-800 outline-none focus:border-[#2CD377] focus:ring-2 focus:ring-[#2CD377]/20"
+                />
+
+                <p className="mt-2 text-[11px] text-gray-400">
+                  Sundays will be skipped automatically.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-5">
+                <label
+                  htmlFor="custom-end-date"
+                  className="text-xs font-semibold text-gray-600"
+                >
+                  Select new end date
+                </label>
+
+                <input
+                  id="custom-end-date"
+                  type="date"
+                  min={subscription.end_date}
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-semibold text-gray-800 outline-none focus:border-[#2CD377] focus:ring-2 focus:ring-[#2CD377]/20"
+                />
+
+                {customEndDate && (
+                  <p className="mt-2 text-[11px] text-gray-400">
+                    Adds {getDeliveryDays(subscription.end_date, customEndDate)} delivery days. Sundays are skipped.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowExtend(false);
+                  setCustomEndDate("");
+                  setExtensionMode("days");
+                }}
+                disabled={extending}
+                className="rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-bold text-gray-500 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleExtendSubscription}
+                disabled={extending}
+                className="rounded-xl bg-[#2CD377] px-4 py-2.5 text-xs font-bold text-white hover:opacity-90 disabled:opacity-50 cursor-pointer"
+              >
+                {extending ? "Extending..." : "Extend Subscription"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <ConfirmDialog

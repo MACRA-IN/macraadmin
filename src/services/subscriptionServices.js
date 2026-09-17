@@ -79,3 +79,20 @@ export const getSubscriptionById = async (id) => {
     );
   }
 };
+
+/** Extend a subscription by delivery days. Sundays are skipped by the backend. */
+export const extendSubscription = async (subscriptionId, days) => {
+  try {
+    const response = await apiClient.post(
+      `/api/admin/subscriptions/${subscriptionId}/extend`,
+      { days },
+    );
+
+    return unwrap(response.data);
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to extend subscription",
+      { cause: error },
+    );
+  }
+};
