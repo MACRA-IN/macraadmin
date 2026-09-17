@@ -619,10 +619,11 @@ const SubscriptionDetail = () => {
   };
 
   const handleExtendSubscription = async () => {
+    const endDate = data?.subscription?.end_date;
     const days =
       extensionMode === "days"
         ? Number(extensionDays)
-        : getDeliveryDays(subscription.end_date, customEndDate);
+        : getDeliveryDays(endDate, customEndDate);
 
     if (!Number.isInteger(days) || days <= 0) {
       showError(
